@@ -44,41 +44,49 @@ class Dictionary
     public function getPublicData()
     {
         $data = [];
-        $data['menus'] = Dictionary::menu();
-        $data['option'] = Dictionary::option();
-        $data['script'] = Dictionary::script();
-        $data['category'] = Dictionary::category();
-        $data['tag'] = Dictionary::tag();
-        $data['order-status'] = Dictionary::orderStatus();
-        $data['locale'] = Language::getSupportedLocales();
-        $data['post-status'] = Dictionary::postStatus();
-        $data['product-status'] = Dictionary::productStatus();
+
+        if (Cache::has('publicData')) {
+            $data = Cache::get('publicData');
+        } else {
+            $data['menus'] = Dictionary::menu();
+            $data['option'] = Dictionary::option();
+            $data['script'] = Dictionary::script();
+            $data['category'] = Dictionary::category();
+            $data['tag'] = Dictionary::tag();
+            $data['order-status'] = Dictionary::orderStatus();
+            $data['locale'] = Language::getSupportedLocales();
+            $data['post-status'] = Dictionary::postStatus();
+            $data['product-status'] = Dictionary::productStatus();
+            Cache::forever('publicData', $data);
+            $data = Cache::get('publicData');
+        }
         return $data;
     }
     public function getPrivateData()
     {
         $data = [];
-        $data['admin-menu'] = Dictionary::adminMenu();
-        $data['dashboard'] = Dictionary::dashboard();
-        $data['admin-setting'] = Dictionary::adminSetting();
-        $data['tag'] = Dictionary::tag();
-        $data['order-status'] = Dictionary::orderStatus();
-        $data['category'] = Dictionary::category();
-        $data['locale'] = Language::getSupportedLocales();
-        $data['post-status'] = Dictionary::postStatus();
-        $data['product-status'] = Dictionary::productStatus();
+        if (Cache::has('privateData')) {
+            $data = Cache::get('privateData');
+        } else {
+            $data['admin-menu'] = Dictionary::adminMenu();
+            $data['dashboard'] = Dictionary::dashboard();
+            $data['admin-setting'] = Dictionary::adminSetting();
+            $data['tag'] = Dictionary::tag();
+            $data['order-status'] = Dictionary::orderStatus();
+            $data['category'] = Dictionary::category();
+            $data['locale'] = Language::getSupportedLocales();
+            $data['post-status'] = Dictionary::postStatus();
+            $data['product-status'] = Dictionary::productStatus();
+            Cache::forever('privateData', $data);
+            $data = Cache::get('privateData');
+        }
         return $data;
 
     }
     public function menu()
     {
-        if (Cache::has('menu')) {
-            return Cache::get('menu');
-        } else {
-            $menu = $this->entityMenu->all();
-            Cache::forever('menu', $menu);
-            return Cache::get('menu');
-        }
+        $menu = $this->entityMenu->all();
+        return $menu;
     }
     public function postStatus()
     {
@@ -86,7 +94,6 @@ class Dictionary
             $item = __($item);
             return $item;
         });
-
         return $postStatus;
     }
     public function adminMenu()
@@ -103,7 +110,6 @@ class Dictionary
             return $item;
         });
         return $admin_menu;
-
     }
     public function dashboard()
     {
@@ -119,7 +125,6 @@ class Dictionary
             return $item;
         });
         return $dashboard['sections'];
-
     }
     public function adminSetting()
     {
@@ -136,7 +141,6 @@ class Dictionary
             return $item;
         });
         return $admin_setting['sections'];
-
     }
     public function productStatus()
     {
@@ -148,97 +152,66 @@ class Dictionary
     }
     public function orderStatus()
     {
-        if (Cache::has('orderStatus')) {
-            return Cache::get('orderStatus');
-        } else {
-            $orderStatus = $this->entityOrderStatus->all();
-            Cache::forever('orderStatus', $orderStatus);
-            return Cache::get('orderStatus');
-        }
+        $orderStatus = $this->entityOrderStatus->all();
+        return $orderStatus;
     }
     public function menuItem($menu)
     {
-        if (Cache::has('menuItem')) {
-            return Cache::get('menuItem');
-        } else {
-            $menuItem = $menu->menuItems;
-            Cache::forever('menuItem', $menuItem);
-            return Cache::get('menuItem');
-        }
+        $menuItem = $menu->menuItems;
+        return $menuItem;
     }
     public function subMenuItem($itemMenu)
     {
-        if (Cache::has('subMenuItem')) {
-            return Cache::get('subMenuItem');
-        } else {
-
-            $menuItem = $itemMenu->subMenus;
-            Cache::forever('subMenuItem', $menuItem);
-            return Cache::get('subMenuItem');
-        }
+        $menuItem = $itemMenu->subMenus;
+        return $menuItem;
     }
     public function script()
     {
-        if (Cache::has('script')) {
-            return Cache::get('script');
-        } else {
-            $script = $this->entityScript->all();
-            Cache::forever('script', $script);
-            return Cache::get('script');
-        }
+        $script = $this->entityScript->all();
+        return $script;
     }
     public function findScript($field, $value)
     {
-        return Dictionary::script()->where($field, $value)->first();
+        $data = Dictionary::getPublicData();
+        return $data['script']->where($field, $value)->first();
     }
     public function option()
     {
-        if (Cache::has('option')) {
-            return Cache::get('option');
-        } else {
-            $option = $this->entityOption->all();
-            Cache::forever('option', $option);
-            return Cache::get('option');
-        }
+        $option = $this->entityOption->all();
+        return $option;
     }
     public function tag()
     {
-        if (Cache::has('tag')) {
-            return Cache::get('tag');
-        } else {
-            $tag = $this->entityTag->all();
-            Cache::forever('tag', $tag);
-            return Cache::get('tag');
-        }
+        $tag = $this->entityTag->all();
+        return $tag;
     }
     public function findOption($key)
     {
-        $option = Dictionary::option()->where('key', $key)->first();
+        $data = Dictionary::getPublicData();
+        $option = $data['option']->where('key', $key)->first();
         if (!empty($option)) {
             return $option->value;
         }
     }
     public function findArrayOption($key)
     {
-        return Dictionary::option()->whereIn('key', $key);
+        $data = Dictionary::getPublicData();
+        return $data['option']->whereIn('key', $key);
     }
     public function category()
     {
-        if (Cache::has('category')) {
-            return Cache::get('category');
-        } else {
-            $category = $this->entityCategory->all();
-            Cache::forever('category', $category);
-            return Cache::get('category');
-        }
+        $category = $this->entityCategory->all();
+        return $category;
     }
     public function findCategory($field, $value)
     {
-        return Dictionary::category()->where($field, $value)->first();
+        $data = Dictionary::getPublicData();
+        return $data['category']->where($field, $value)->first();
     }
     public function categoryQuery(array $where, $number = 10, $order_by = 'order', $order = 'asc')
     {
-        $query = Dictionary::category();
+        $data = Dictionary::getPublicData();
+        $query = $data['category'];
         foreach ($where as $key => $value) {
             $query = $query->where($key, $value);
         }
@@ -254,7 +227,8 @@ class Dictionary
     }
     public function categoryQueryPaginate(array $where, $number = 10, $page = 1, $order_by = 'order', $order = 'asc')
     {
-        $query = Dictionary::category();
+        $data = Dictionary::getPublicData();
+        $query = $data['category'];
         foreach ($where as $key => $value) {
             $query = $query->where($key, $value);
         }
@@ -264,15 +238,16 @@ class Dictionary
             $query = $query->sortByDesc($order_by);
         }
         return $query->forPage($page, $number);
-
     }
     public function findTag($field, $value)
     {
-        return Dictionary::tag()->where($field, $value)->first();
+        $data = Dictionary::getPublicData();
+        return $data['tag']->where($field, $value)->first();
     }
     public function tagQuery(array $where, $number = 10, $order_by = 'order', $order = 'asc')
     {
-        $query = Dictionary::tag();
+        $data = Dictionary::getPublicData();
+        $query = $data['tag'];
         foreach ($where as $key => $value) {
             $query = $query->where($key, $value);
         }
@@ -288,7 +263,8 @@ class Dictionary
     }
     public function tagQueryPaginate(array $where, $number = 10, $order_by = 'order', $order = 'asc', $page = 1)
     {
-        $query = Dictionary::tag();
+        $data = Dictionary::getPublicData();
+        $query = $data['tag'];
         foreach ($where as $key => $value) {
             $query = $query->where($key, $value);
         }
@@ -298,6 +274,5 @@ class Dictionary
             $query = $query->sortByDesc($order_by);
         }
         return $query->forPage($page, $number);
-
     }
 }
