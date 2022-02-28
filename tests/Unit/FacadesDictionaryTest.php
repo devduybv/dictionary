@@ -3,6 +3,7 @@
 namespace VCComponent\Laravel\Dictionary\Test\Unit;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use VCComponent\Laravel\Category\Entities\Category;
 use VCComponent\Laravel\Config\Entities\Option;
 use VCComponent\Laravel\Dictionary\Dictionarys\Facades\Dictionary;
@@ -16,6 +17,22 @@ use VCComponent\Laravel\Tag\Entities\Tag;
 class FacadesDictionaryTest extends TestCase
 {
     use RefreshDatabase;
+    /**
+     * @test
+     */
+    public function should_clear_cache()
+    {
+
+        Dictionary::getPublicData();
+        Dictionary::getPrivateData();
+        $this->assertSame(true, Cache::has('publicData'));
+        $this->assertSame(true, Cache::has('privateData'));
+
+        Dictionary::clearCache();
+        $this->assertSame(false, Cache::has('publicData'));
+        $this->assertSame(false, Cache::has('privateData'));
+
+    }
 
     /**
      * @test

@@ -41,6 +41,10 @@ class Dictionary
             $this->entityOrderStatus = new OrderStatus;
         }
     }
+    public function clearCache() {
+        Cache::forget('publicData');
+        Cache::forget('privateData');
+    }
     public function getPublicData()
     {
         $data = [];
